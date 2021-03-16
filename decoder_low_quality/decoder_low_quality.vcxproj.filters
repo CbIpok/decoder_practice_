@@ -24,7 +24,7 @@
     <ClInclude Include="bitstream.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="types.h">
+    <ClInclude Include="type.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

@@ -15,5 +15,3 @@ void bistreamSkip(Bitstream& bitstream, size_t skipLen)
     bitstream.cur += skipLen;
     bitstream.len_readed += skipLen;
 }
-
-
