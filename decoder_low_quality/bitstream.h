@@ -37,24 +37,26 @@ struct Bitstream
 void readFromBitsream(Bitstream& bitstream, uint8_t* dst, size_t size);
 
 
-template <typename T>
-void readFromBitsreamAndSwap(Bitstream& bitstream, T& dst, size_t size);
 
 
 template<typename T>
-void readFromBitsreamAndSwap(Bitstream& bitstream, T& dst, size_t size) //todo return T, remove size
+T readFromBitsreamAndSwap(Bitstream& bitstream) 
 {
-    readFromBitsream(bitstream, (uint8_t*)&dst, size);
+    T dst;
+    readFromBitsream(bitstream, (uint8_t*)&dst, sizeof(T));
     dst = swap_endian(dst);
+    return dst;
 }
 
 template<typename T>
-void peekBitsreamAndSwap(Bitstream& bitstream, T& dst, size_t size) // todo return T
+T peekBitsreamAndSwap(Bitstream& bitstream) 
 {
-    readFromBitsream(bitstream, (uint8_t*)&dst, size);
-    bitstream.len_readed -= size;
-    bitstream.cur -= size;
+    T dst;
+    readFromBitsream(bitstream, (uint8_t*)&dst, sizeof(T));
+    bitstream.len_readed -= sizeof(T);
+    bitstream.cur -= sizeof(T);
     dst = swap_endian(dst);
+    return dst;
 }
 
 template<typename T>
@@ -69,7 +71,7 @@ T readBitsFromBitstream(Bitstream& bitstream, size_t bitsCount)
         T mask1 = mask >> (bitstream.bitoffset + bitsCount);
         T mask2 = mask << (sizeof(T)*BYTE_SIZE - bitstream.bitoffset);
         mask = ~(mask1 | mask2); // |000000...|(a)111111...|(b)000000...|  a pos is offset, b pos is bitsCount + offset
-        peekBitsreamAndSwap(bitstream, value, sizeof(T));
+        value = peekBitsreamAndSwap<T>(bitstream);
         value = value & mask;
         size_t valueShitRight = sizeof(T)*BYTE_SIZE - bitsCount - bitstream.bitoffset;
         value = value >> valueShitRight;
@@ -84,7 +86,7 @@ T readBitsFromBitstream(Bitstream& bitstream, size_t bitsCount)
     else
     {
 
-        readFromBitsreamAndSwap(bitstream, value, sizeof(T));
+        value = readFromBitsreamAndSwap<T>(bitstream);
     }
 
     return value;

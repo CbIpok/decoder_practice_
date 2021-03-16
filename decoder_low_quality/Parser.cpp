@@ -39,7 +39,7 @@ std::vector<BlockOfMemory> BlockParser::getSlices()
     while (marker != eMarker::EOC)
     {
         slices.push_back(getSlice());
-        peekBitsreamAndSwap(bitstream, marker, XS_MARKER_NBYTES);
+        marker = peekBitsreamAndSwap<eMarker>(bitstream);
     }
     return slices;
 }
@@ -64,22 +64,22 @@ size_t BlockParser::getSliceSize(Bitstream& lbitsream) //todo use eMarker
     eMarker marker;
     uint16_t val16;
     uint32_t val32;
-    readFromBitsreamAndSwap(lbitsream, marker, XS_MARKER_NBYTES);
+    marker = readFromBitsreamAndSwap<eMarker>(lbitsream);
     assert(marker == eMarker::SLH);
-    readFromBitsreamAndSwap(lbitsream, val16, sizeof(val16));
+    val16 = readFromBitsreamAndSwap<uint16_t>(lbitsream);
     uint16_t Lslh = 4; // constant from 1st part of standart
     assert(val16 == Lslh);
-    readFromBitsreamAndSwap(lbitsream, val16, sizeof(val16)); // slice number read
+    val16 = readFromBitsreamAndSwap<uint16_t>(lbitsream); // slice number read
 
     //read all precincts in slice
     while (val16 != XS_MARKER_SLH && val16 != XS_MARKER_EOC && bitstream.len_readed < bitstream.size)
     {
-        peekBitsreamAndSwap(lbitsream, val32, sizeof(val32));
+        val32 = peekBitsreamAndSwap<uint32_t>(lbitsream);
         uint32_t precinctDataSize = val32 >> 8; // read 24 bits
         size_t precinctOverhead = 11;
         size_t precincSize = precinctDataSize + precinctOverhead;
         bistreamSkip(lbitsream, precincSize);
-        peekBitsreamAndSwap(lbitsream, val16, sizeof(val16)); // possible read Slice header
+        val16 = peekBitsreamAndSwap<uint16_t>(lbitsream); // possible read Slice header
     }
 
     size = lbitsream.len_readed - bitstream.len_readed;
@@ -145,56 +145,56 @@ void DetailParser::parseHeader(BlockOfMemory& blockOfMemory)
 
     //SOC marker 
     {
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, marker, XS_MARKER_NBYTES);
+        marker = readFromBitsreamAndSwap<eMarker>(blockOfMemory.bitstream);
         //marker = readBitsFromBitstream(blockOfMemory.bitstream,)
         assert(marker == eMarker::SOC);
     }
     //CAP markers 
     {
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, marker, XS_MARKER_NBYTES);
+        marker = readFromBitsreamAndSwap<eMarker>(blockOfMemory.bitstream);
         assert(marker == eMarker::CAP);
         //Lcap
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, val16, sizeof(val16));
+        val16 = readFromBitsreamAndSwap<uint16_t>(blockOfMemory.bitstream);
         assert(val16 == 2);
     }
     
     {
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, marker, XS_MARKER_NBYTES);
+        marker = readFromBitsreamAndSwap<eMarker>(blockOfMemory.bitstream);
         assert(marker == eMarker::PIH);
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, val16, sizeof(val16));
+        val16 = readFromBitsreamAndSwap<uint16_t>(blockOfMemory.bitstream);
         assert(val16 == LenghtPih);
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, val32, sizeof(val32));
+        val32 = readFromBitsreamAndSwap<uint32_t>(blockOfMemory.bitstream);
         pictureHeader.codestreamSize = val32;
 
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, val16, sizeof(val16));
+        val16 = readFromBitsreamAndSwap<uint16_t>(blockOfMemory.bitstream);
         pictureHeader.profile = val16;
 
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, val16, sizeof(val16));
+        val16 = readFromBitsreamAndSwap<uint16_t>(blockOfMemory.bitstream);
         pictureHeader.level = val16;
 
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, val16, sizeof(val16));
+        val16 = readFromBitsreamAndSwap<uint16_t>(blockOfMemory.bitstream);
         pictureHeader.frameHeight = val16;
 
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, val16, sizeof(val16));
+        val16 = readFromBitsreamAndSwap<uint16_t>(blockOfMemory.bitstream);
         pictureHeader.frameWidth = val16;
 
 
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, val16, sizeof(val16));
+        val16 = readFromBitsreamAndSwap<uint16_t>(blockOfMemory.bitstream);
         pictureHeader.precinctWidth = val16;
 
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, val16, sizeof(val16));
+        val16 = readFromBitsreamAndSwap<uint16_t>(blockOfMemory.bitstream);
         pictureHeader.slicehHeight = val16;
 
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, val8, sizeof(val8));
+        val8 = readFromBitsreamAndSwap<uint8_t>(blockOfMemory.bitstream);
         pictureHeader.componentsNumber = val8;
 
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, val8, sizeof(val8));
+        val8 = readFromBitsreamAndSwap<uint8_t>(blockOfMemory.bitstream);
         pictureHeader.codeGroupSize = val8;
 
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, val8, sizeof(val8));
+        val8 = readFromBitsreamAndSwap<uint8_t>(blockOfMemory.bitstream);
         pictureHeader.significanceGroupSize = val8;
 
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, val8, sizeof(val8));
+        val8 = readFromBitsreamAndSwap<uint8_t>(blockOfMemory.bitstream);
         pictureHeader.waveletBitPrecision = val8;
 
 
@@ -227,16 +227,16 @@ void DetailParser::parseHeader(BlockOfMemory& blockOfMemory)
     
     //parse CDT
     {
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, marker, sizeof(marker));
+        marker = readFromBitsreamAndSwap<eMarker>(blockOfMemory.bitstream);
         assert((eMarker)marker == eMarker::CDT);
         
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, val16, sizeof(marker));// Lcdt Size of the segment in bytes, not including
+        val16 = readFromBitsreamAndSwap<uint16_t>(blockOfMemory.bitstream);// Lcdt Size of the segment in bytes, not including
         
         for (size_t i = 0; i < pictureHeader.componentsNumber; i++)
         {
             componentTable.emplace_back();
 
-            readFromBitsreamAndSwap(blockOfMemory.bitstream, val8, sizeof(val8));
+            val8 = readFromBitsreamAndSwap<uint8_t>(blockOfMemory.bitstream);
             componentTable[i].bitPrecision = val8;
 
             val8 = readBitsFromBitstream<uint8_t>(blockOfMemory.bitstream, 4);
@@ -251,10 +251,10 @@ void DetailParser::parseHeader(BlockOfMemory& blockOfMemory)
     //parse WGT
     
     {
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, marker, sizeof(marker));
+        marker = readFromBitsreamAndSwap<eMarker>(blockOfMemory.bitstream);
         assert((eMarker)marker == eMarker::WGT);
 
-        readFromBitsreamAndSwap(blockOfMemory.bitstream, val16, sizeof(val16));// Size of the segment in bytes, not including the marker
+        val16 = readFromBitsreamAndSwap<uint16_t>(blockOfMemory.bitstream);// Size of the segment in bytes, not including the marker
 
         size_t bandPerComponent = 2 * std::min({ pictureHeader.horizontalWaveletLevels, pictureHeader.verticalWaveletLevels }) + std::max({ pictureHeader.horizontalWaveletLevels, pictureHeader.verticalWaveletLevels }) + 1;
 
@@ -265,9 +265,9 @@ void DetailParser::parseHeader(BlockOfMemory& blockOfMemory)
             {
                 
                 size_t i = bandPerComponent * component + band;
-                readFromBitsreamAndSwap(blockOfMemory.bitstream, val8, sizeof(val8));
+                val8 = readFromBitsreamAndSwap<uint8_t>(blockOfMemory.bitstream);
                 weightTable[i].gain = val8;
-                readFromBitsreamAndSwap(blockOfMemory.bitstream, val8, sizeof(val8));
+                val8 = readFromBitsreamAndSwap<uint8_t>(blockOfMemory.bitstream);
                 weightTable[i].priority = val8;
             }
         }
