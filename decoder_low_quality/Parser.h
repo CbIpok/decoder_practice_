@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 #include "bitstream.h"
-#include "type.h"
+#include "types.h"
 
 
 
@@ -20,7 +20,7 @@ public:
 
     ~BlockOfMemory();
 
-    std::shared_ptr<uint8_t> data;
+    std::unique_ptr<uint8_t> data;
     size_t len;
     Bitstream bitstream;
 };
@@ -41,7 +41,7 @@ public:
 
     BlockOfMemory getSlice();
 
-    BlockOfMemory gesEos();
+    BlockOfMemory gesEos(); //to simply 
 
     
     
@@ -60,7 +60,7 @@ private:
         DONE
     };
 
-    size_t getSliceSize(Bitstream bistream);
+    size_t getSliceSize(Bitstream& lbitsream);
     
 
    
@@ -70,15 +70,24 @@ private:
 
 
 
-class DetailParser
+class DetailParser 
 {
 public:
     DetailParser() = default;
     ~DetailParser() = default;
 
-    PictureHeader parseHeader(BlockOfMemory& blockOfMemory);
+    void parseHeader(BlockOfMemory& blockOfMemory);
 
+    const PictureHeader& getPih() { return pictureHeader; };
+    
+    const std::vector<Component>& getComponentTable() { return componentTable; };
+
+    const std::vector<Band>& getWeightTable() { return weightTable; };
 private:
+
+    PictureHeader pictureHeader;
+    std::vector<Component> componentTable;
+    std::vector<Band> weightTable;
 
 
 

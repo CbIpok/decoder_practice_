@@ -1,10 +1,15 @@
 #include "Parser.h"
 #include <cstdint>
 #include <iostream>
+#include <bitset>
+#include "types.h"
 
 int main()
 {
-    //// code not for review
+    
+    
+   
+     //// code not for review
     FILE* fp { nullptr };
 
     fopen_s(&fp, "1_b_3.jxs", "rb");  // r for read, b for binary
@@ -25,7 +30,9 @@ int main()
 
     DetailParser dparser;
 
-    auto picHeader = dparser.parseHeader(block);
+    dparser.parseHeader(block);
+
+    //std::cout << bitCount(picHeader.progressionMode);
 
     auto slices = parser.getSlices();
 
