@@ -58,7 +58,7 @@ BlockOfMemory BlockParser::getSlice()
 
 
 
-size_t BlockParser::getSliceSize(Bitstream& lbitsream) //todo use eMarker
+size_t BlockParser::getSliceSize(Bitstream& lbitsream) 
 {
     size_t size;
     eMarker marker;
@@ -69,17 +69,17 @@ size_t BlockParser::getSliceSize(Bitstream& lbitsream) //todo use eMarker
     val16 = readFromBitsreamAndSwap<uint16_t>(lbitsream);
     uint16_t Lslh = 4; // constant from 1st part of standart
     assert(val16 == Lslh);
-    val16 = readFromBitsreamAndSwap<uint16_t>(lbitsream); // slice number read
+    marker = readFromBitsreamAndSwap<eMarker>(lbitsream); // slice number read
 
     //read all precincts in slice
-    while (val16 != XS_MARKER_SLH && val16 != XS_MARKER_EOC && bitstream.len_readed < bitstream.size)
+    while (marker != eMarker::SLH && marker != eMarker::EOC && bitstream.len_readed < bitstream.size)
     {
         val32 = peekBitsreamAndSwap<uint32_t>(lbitsream);
         uint32_t precinctDataSize = val32 >> 8; // read 24 bits
         size_t precinctOverhead = 11;
         size_t precincSize = precinctDataSize + precinctOverhead;
         bistreamSkip(lbitsream, precincSize);
-        val16 = peekBitsreamAndSwap<uint16_t>(lbitsream); // possible read Slice header
+        marker = peekBitsreamAndSwap<eMarker>(lbitsream); // possible read Slice header
     }
 
     size = lbitsream.len_readed - bitstream.len_readed;
