@@ -35,6 +35,10 @@ int main()
     //std::cout << bitCount(picHeader.progressionMode);
 
     auto slices = parser.getSlices();
+    for (auto& slise : slices)
+    {
+        dparser.parseSlice(slise);
+    }
 
    
 

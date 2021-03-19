@@ -26,11 +26,11 @@ T swap_endian(T u)
 
 struct Bitstream
 {
-    size_t size;
-    size_t len_readed;
-    uint8_t* cur;
-    uint8_t* buf;
-    uint8_t bitoffset;
+    size_t size{0};
+    size_t len_readed{0};
+    uint8_t* cur{nullptr};
+    uint8_t* buf{nullptr};
+    uint8_t bitoffset{0};
 };
 
 

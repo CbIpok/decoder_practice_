@@ -3,9 +3,22 @@
 #include <vector>
 
 
+
+constexpr uint8_t PKT_HDR_DATA_SIZE_SHORT = 15; //todo make constexpr
+constexpr uint8_t PKT_HDR_DATA_SIZE_LONG = 20;
+constexpr uint8_t PKT_HDR_GCLI_SIZE_SHORT = 13;
+constexpr uint8_t PKT_HDR_GCLI_SIZE_LONG = 20;
+constexpr uint8_t PKT_HDR_SIGN_SIZE_SHORT = 11;
+constexpr uint8_t PKT_HDR_SIGN_SIZE_LONG = 15;
+constexpr uint8_t PKT_HDR_ALIGNMENT = 8;
+
 constexpr uint16_t XS_MARKER_NBYTES = 2;
 
 constexpr size_t BYTE_SIZE = 8;
+
+constexpr uint8_t PRESINCT_PER_SLISE = 8; // todo find out from standart, may be not constant
+
+constexpr uint8_t PACKETS_PER_PRESINCT = 4; // todo find out from standart, may be not constant
 
 enum class eMarker : uint16_t { 
     SOC = 0xff10,
@@ -62,6 +75,42 @@ struct Band
 {
     uint8_t gain;
     uint8_t priority;
+};
+
+struct PacketHeader
+{
+    uint8_t rawMode : 1;
+    uint32_t SizeOfData;
+    uint32_t sizeOfTheBitplaneCountSubpacket;
+    uint16_t signSubpacketSize;
+};
+
+struct PacketBody
+{
+
+};
+
+
+struct PrecinctHeader
+{
+    uint32_t precinctSize : 24;
+    uint8_t quantization;
+    uint8_t refinement;
+    std::vector<uint8_t> bandCodingmMode; //2 bit
+    uint8_t padding;
+};
+
+struct Precinct
+{
+    PrecinctHeader presinctHeader;
+    std::vector<PacketBody> packetsBody;
+    std::vector<PacketHeader> packetsHeader;
+};
+
+struct Slice
+{
+    uint16_t id;
+    std::vector<Precinct> presincts;
 };
 
 template<typename T>

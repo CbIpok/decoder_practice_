@@ -273,8 +273,68 @@ void DetailParser::parseHeader(BlockOfMemory& blockOfMemory)
         }
     }
 
+}
 
 
 
-    //return pictureHeader;
+void DetailParser::parseSlice(BlockOfMemory& blockOfMemory)
+{
+    Slice slice;
+    //read slise header
+    {
+        size_t size;
+        eMarker marker;
+        uint16_t val16;
+        uint32_t val32;
+        marker = readFromBitsreamAndSwap<eMarker>(blockOfMemory.bitstream);
+        assert(marker == eMarker::SLH);
+        val16 = readFromBitsreamAndSwap<uint16_t>(blockOfMemory.bitstream);
+        uint16_t Lslh = 4; // constant from 1st part of standart
+        assert(val16 == Lslh);
+        uint16_t sliseId = readFromBitsreamAndSwap<uint16_t>(blockOfMemory.bitstream);
+    }
+    std::vector<Precinct> precincts;
+    precincts.resize(PRESINCT_PER_SLISE);
+    //read prepresincts
+    {
+        for (auto& precinct : precincts)
+        {
+            //read presinct header
+            {
+                PrecinctHeader& precinctHeader = precinct.presinctHeader;
+                precinctHeader.precinctSize = readBitsFromBitstream<uint32_t>(blockOfMemory.bitstream, 24);
+                precinctHeader.quantization = readFromBitsreamAndSwap<uint8_t>(blockOfMemory.bitstream);
+                precinctHeader.refinement = readFromBitsreamAndSwap<uint8_t>(blockOfMemory.bitstream);
+                size_t bandPerComponent = 2 * std::min({ pictureHeader.horizontalWaveletLevels, pictureHeader.verticalWaveletLevels }) + std::max({ pictureHeader.horizontalWaveletLevels, pictureHeader.verticalWaveletLevels }) + 1;
+                precinctHeader.bandCodingmMode.resize(bandPerComponent * pictureHeader.componentsNumber);
+                for (size_t band = 0; band < bandPerComponent; band++)
+                {
+                    for (size_t component = 0; component < pictureHeader.componentsNumber; component++)
+                    {
+
+                        size_t i = bandPerComponent * component + band;
+                        precinctHeader.bandCodingmMode.push_back(readBitsFromBitstream<uint8_t>(blockOfMemory.bitstream, 2));
+                    }
+                }
+                precinctHeader.padding = readFromBitsreamAndSwap<uint8_t>(blockOfMemory.bitstream);
+            }
+            //read packet header
+            PacketHeader packetHeader;
+            {
+                bool pktHdrSizeShort = (pictureHeader.frameWidth * pictureHeader.componentsNumber < 32768) && (pictureHeader.verticalWaveletLevels < 3);
+
+                packetHeader.SizeOfData =  readBitsFromBitstream<uint32_t>(blockOfMemory.bitstream, pktHdrSizeShort ? PKT_HDR_DATA_SIZE_SHORT : PKT_HDR_DATA_SIZE_LONG);
+           
+                packetHeader.sizeOfTheBitplaneCountSubpacket = readBitsFromBitstream<uint32_t>(blockOfMemory.bitstream, pktHdrSizeShort ? PKT_HDR_GCLI_SIZE_SHORT : PKT_HDR_GCLI_SIZE_LONG);
+               
+                packetHeader.signSubpacketSize =  readBitsFromBitstream<uint16_t>(blockOfMemory.bitstream, pktHdrSizeShort ? PKT_HDR_SIGN_SIZE_SHORT : PKT_HDR_SIGN_SIZE_LONG);
+           
+            }
+            break;
+        }
+    }
+    
+    
+
+
 }

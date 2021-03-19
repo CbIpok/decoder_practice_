@@ -78,6 +78,8 @@ public:
 
     void parseHeader(BlockOfMemory& blockOfMemory);
 
+    void parseSlice (BlockOfMemory& blockOfMemory);
+
     const PictureHeader& getPih() { return pictureHeader; };
     
     const std::vector<Component>& getComponentTable() { return componentTable; };
