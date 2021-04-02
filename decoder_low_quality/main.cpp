@@ -4,11 +4,10 @@
 #include <bitset>
 #include "types.h"
 
+#include <array>
+
 int main()
-{
-    
-    
-   
+{ 
      //// code not for review
     FILE* fp { nullptr };
 

@@ -342,7 +342,7 @@ void DetailParser::parseHeaderFast(FifoBuf & fifo)
 
         pictureHeader.fractionalBits = fifo.readBits(4);
 
-        pictureHeader.rawBitsPerCodeGroup = fifo.readBits(sizeof(uint16_t) * BYTE_SIZE);
+        pictureHeader.rawBitsPerCodeGroup = fifo.readBits(4);
         assert(pictureHeader.rawBitsPerCodeGroup == 4);
 
 
@@ -492,3 +492,4 @@ void DetailParser::parseSlice(BlockOfMemory& blockOfMemory)
 
 
 }
+

@@ -22,7 +22,7 @@ public:
     size_t lenReaded{ 0 };
     uint8_t* cur{ nullptr };
     uint8_t* buf{ nullptr };
-    size_t numBits {0};
+    size_t numBits {0}; //move to cash
     uint8_t bitoffset{ 0 }; //remove
 
 private:
@@ -31,22 +31,23 @@ private:
 
 };
 
-class FifoBuf final
+class FifoBuf final //split to accumulator and bitReader
 {
 public:
+    FifoBuf() = delete;
+    FifoBuf(uint8_t* pData, size_t size) {};
     void recive(const NetworkPacket& packet);  
 
     uint32_t readBits(size_t bitsCount); //todo template
 
 private:
-    uint64_t _cash;
+    size_t _cash;
     size_t _offset;
     std::deque<NetworkPacket> _buf;
     bool _cashIsEmpty{ true };
     Bitstream _curPacket;
 
-    bool _load_bits();
-    constexpr uint32_t _make_mask (size_t bitsCount); 
+    uint32_t _load_bits();
 };
 
 
