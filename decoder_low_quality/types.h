@@ -4,7 +4,7 @@
 
 
 
-constexpr uint8_t PKT_HDR_DATA_SIZE_SHORT = 15; //todo make constexpr
+constexpr uint8_t PKT_HDR_DATA_SIZE_SHORT = 15;
 constexpr uint8_t PKT_HDR_DATA_SIZE_LONG = 20;
 constexpr uint8_t PKT_HDR_GCLI_SIZE_SHORT = 13;
 constexpr uint8_t PKT_HDR_GCLI_SIZE_LONG = 20;
@@ -34,6 +34,23 @@ enum class eMarker : uint16_t {
 
 
 
+struct NetworkPacket //todo write in cpp
+{
+    NetworkPacket(uint8_t* data, size_t len):
+        data((new uint8_t[len]())),
+        size(len)
+    {
+        memcpy(this->data.get(), data, len);
+    }
+    NetworkPacket(const NetworkPacket& packet):
+        data((new uint8_t[packet.size]())),
+        size(packet.size)
+    {
+        memcpy(this->data.get(), packet.data.get(), size);
+    }
+    std::unique_ptr<uint8_t[]> data;
+    size_t size;
+};
 
 struct PictureHeader
 {

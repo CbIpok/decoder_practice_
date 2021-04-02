@@ -1,10 +1,60 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <climits>
 #include <vector>
 #include <algorithm>
 #include "types.h"
+#include <deque>
+
+
+class Bitstream
+{
+public:
+    Bitstream(uint8_t* data, size_t size);
+
+    Bitstream(const Bitstream& bitstream);
+
+    Bitstream();
+
+    size_t size{ 0 };
+    size_t lenReaded{ 0 };
+    uint8_t* cur{ nullptr };
+    uint8_t* buf{ nullptr };
+    size_t numBits {0};
+    uint8_t bitoffset{ 0 }; //remove
+
+private:
+
+
+
+};
+
+class FifoBuf final
+{
+public:
+    void recive(const NetworkPacket& packet);  
+
+    uint32_t readBits(size_t bitsCount); //todo template
+
+private:
+    uint64_t _cash;
+    size_t _offset;
+    std::deque<NetworkPacket> _buf;
+    bool _cashIsEmpty{ true };
+    Bitstream _curPacket;
+
+    bool _load_bits();
+    constexpr uint32_t _make_mask (size_t bitsCount); 
+};
+
+
+
+
+
+
+
 template <typename T>
 T swap_endian(T u)
 {
@@ -24,14 +74,14 @@ T swap_endian(T u)
     return dest.u;
 }
 
-struct Bitstream
-{
-    size_t size{0};
-    size_t len_readed{0};
-    uint8_t* cur{nullptr};
-    uint8_t* buf{nullptr};
-    uint8_t bitoffset{0};
-};
+//struct Bitstream
+//{
+//    size_t size{0};
+//    size_t len_readed{0};
+//    uint8_t* cur{nullptr};
+//    uint8_t* buf{nullptr};
+//    uint8_t bitoffset{0};
+//};
 
 
 void readFromBitsream(Bitstream& bitstream, uint8_t* dst, size_t size);
@@ -53,7 +103,7 @@ T peekBitsreamAndSwap(Bitstream& bitstream)
 {
     T dst;
     readFromBitsream(bitstream, (uint8_t*)&dst, sizeof(T));
-    bitstream.len_readed -= sizeof(T);
+    bitstream.lenReaded -= sizeof(T);
     bitstream.cur -= sizeof(T);
     dst = swap_endian(dst);
     return dst;
@@ -78,7 +128,7 @@ T readBitsFromBitstream(Bitstream& bitstream, size_t bitsCount)
         bitstream.bitoffset += bitsCount;
         while (bitstream.bitoffset >= 8)
         {
-            bitstream.len_readed += 1;
+            bitstream.lenReaded += 1;
             bitstream.cur += 1;
             bitstream.bitoffset -= 8;
         }

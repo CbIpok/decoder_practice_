@@ -40,7 +40,15 @@ int main()
         dparser.parseSlice(slise);
     }
 
-   
+   //fifo test
+    FifoBuf buf;
+    {
+        NetworkPacket packet(block.data.get(),block.len);
+        buf.recive(packet);
+
+        dparser.parseHeaderFast(buf);
+
+    }
 
     return 0;
 }

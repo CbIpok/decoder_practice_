@@ -78,6 +78,8 @@ public:
 
     void parseHeader(BlockOfMemory& blockOfMemory);
 
+    void parseHeaderFast(FifoBuf & fifo);
+
     void parseSlice (BlockOfMemory& blockOfMemory);
 
     const PictureHeader& getPih() { return pictureHeader; };
