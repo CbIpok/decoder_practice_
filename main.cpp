@@ -1,8 +1,8 @@
-#include "Parser.h"
+#include "decoder_low_quality/Parser.h"
 #include <cstdint>
 #include <iostream>
 #include <bitset>
-#include "types.h"
+#include "decoder_low_quality/types.h"
 
 #include <array>
 

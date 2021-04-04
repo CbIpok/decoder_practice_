@@ -1,6 +1,10 @@
 #build
 Debug
 decoder_low_quality\Debug
+cmake-build-debug
 
 #vs
 .vs
+
+#clion
+.idea

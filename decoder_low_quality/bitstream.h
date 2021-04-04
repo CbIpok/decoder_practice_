@@ -34,8 +34,8 @@ private:
 class FifoBuf final //split to accumulator and bitReader
 {
 public:
-    FifoBuf() = delete;
-    FifoBuf(uint8_t* pData, size_t size) {};
+    //FifoBuf() = delete;
+    //FifoBuf(uint8_t* pData, size_t size) {}; //todo delete default constructor
     void recive(const NetworkPacket& packet);  
 
     uint32_t readBits(size_t bitsCount); //todo template
